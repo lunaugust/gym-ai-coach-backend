@@ -1,0 +1,44 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Environment variables
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+prisma/.env
+
+# VS Code
+.vscode/
+
+# Build output
+dist/
+build/
+
+# Misc
+*.local
+coverage/
+
+# Windows
+*.exe
+*.dll
+*.bat
+*.cmd
+
+# Others
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
