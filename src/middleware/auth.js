@@ -22,7 +22,7 @@ const auth = catchAsync(async (req, res, next) => {
     req.user = decoded; // Attach payload { userId, email, name } to the request
     next();
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
+    if (error instanceof jwt.TokenExpiredError) {
       return next(new ApiError(401, 'Your session has expired. Please log in again.', 'TOKEN_EXPIRED'));
     }
     return next(new ApiError(401, 'Invalid token. Please log in again.', 'INVALID_TOKEN'));
