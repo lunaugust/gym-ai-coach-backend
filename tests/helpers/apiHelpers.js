@@ -30,6 +30,6 @@ const loginUser = async ({ email, password, ip }) => {
 
 const authHeader = (accessToken) => `Bearer ${accessToken}`;
 
-module.exports = { api, registerUser, loginUser, authHeader };
+module.exports = { api, registerUser, loginUser, authHeader, generateIp };
 
 
