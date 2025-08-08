@@ -1,7 +1,12 @@
 const request = require('supertest');
-const app = require('../../src/app');
 
-const api = () => request(app);
+// Lazy-load the app after test setup (migrations/generate) has run
+const api = () => {
+  // Require inside the function to avoid initializing Prisma client before setup
+  // eslint-disable-next-line global-require
+  const app = require('../../src/app');
+  return request(app);
+};
 
 const generateIp = () => `10.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
 

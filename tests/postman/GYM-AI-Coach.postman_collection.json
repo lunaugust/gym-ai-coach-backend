@@ -1,336 +1,124 @@
 {
-	"info": {
-		"_postman_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
-		"name": "GYM AI Coach API",
-		"description": "A collection for testing the GYM AI Coach authentication service.",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "Health Check",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{baseUrl}}/health",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"health"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Authentication",
-			"item": [
-				{
-					"name": "1. Register User",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 201 Created\", function () {",
-									"    pm.response.to.have.status(201);",
-									"});",
-									"",
-									"const response = pm.response.json();",
-									"",
-									"if (pm.response.code === 201 && response.data.tokens) {",
-									"    pm.collectionVariables.set(\"accessToken\", response.data.tokens.accessToken);",
-									"    pm.collectionVariables.set(\"refreshToken\", response.data.tokens.refreshToken);",
-									"    console.log(\"Access and Refresh tokens saved to collection variables.\");",
-									"}",
-									"",
-									"pm.test(\"Response contains user and token data\", function () {",
-									"    pm.expect(response.success).to.be.true;",
-									"    pm.expect(response.data).to.have.property('user');",
-									"    pm.expect(response.data).to.have.property('tokens');",
-									"    pm.expect(response.data.tokens).to.have.property('accessToken');",
-									"    pm.expect(response.data.tokens).to.have.property('refreshToken');",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"{{$randomEmail}}\",\n    \"password\": \"Password123!\",\n    \"name\": \"{{$randomFullName}}\",\n    \"age\": 28,\n    \"weight\": 85.5,\n    \"height\": 180,\n    \"goal\": \"muscle_gain\",\n    \"experience_level\": \"intermediate\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/register",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Login User",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200 OK\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"const response = pm.response.json();",
-									"",
-									"if (pm.response.code === 200 && response.data.tokens) {",
-									"    pm.collectionVariables.set(\"accessToken\", response.data.tokens.accessToken);",
-									"    pm.collectionVariables.set(\"refreshToken\", response.data.tokens.refreshToken);",
-									"    console.log(\"Access and Refresh tokens saved to collection variables.\");",
-									"}",
-									"",
-									"pm.test(\"Response contains user and token data\", function () {",
-									"    pm.expect(response.success).to.be.true;",
-									"    pm.expect(response.data).to.have.property('user');",
-									"    pm.expect(response.data).to.have.property('tokens');",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123!\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "2. Get Profile",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200 OK\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Profile data is returned correctly\", function () {",
-									"    const response = pm.response.json();",
-									"    pm.expect(response.success).to.be.true;",
-									"    pm.expect(response.data.user).to.have.property('id');",
-									"    pm.expect(response.data.user).to.have.property('email');",
-									"    pm.expect(response.data.user).to.not.have.property('password');",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{accessToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/profile",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"profile"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "3. Refresh Tokens",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200 OK\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"const response = pm.response.json();",
-									"",
-									"if (pm.response.code === 200 && response.data.tokens) {",
-									"    pm.collectionVariables.set(\"accessToken\", response.data.tokens.accessToken);",
-									"    pm.collectionVariables.set(\"refreshToken\", response.data.tokens.refreshToken);",
-									"    console.log(\"Tokens have been refreshed and updated.\");",
-									"}",
-									"",
-									"pm.test(\"Response contains new tokens\", function () {",
-									"    pm.expect(response.success).to.be.true;",
-									"    pm.expect(response.data.tokens).to.have.property('accessToken');",
-									"    pm.expect(response.data.tokens).to.have.property('refreshToken');",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/refresh",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"refresh"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "4. Logout",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 204 No Content\", function () {",
-									"    pm.response.to.have.status(204);",
-									"});",
-									"",
-									"// Clear tokens after successful logout",
-									"if (pm.response.code === 204) {",
-									"    pm.collectionVariables.unset(\"accessToken\");",
-									"    pm.collectionVariables.unset(\"refreshToken\");",
-									"    console.log(\"Tokens cleared after logout.\");",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{accessToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/auth/logout",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"logout"
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"description": "Endpoints related to user authentication."
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "http://localhost:3000",
-			"type": "string"
-		},
-		{
-			"key": "accessToken",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "refreshToken",
-			"value": "",
-			"type": "string"
-		}
-	]
+  "info": {
+    "_postman_id": "gym-ai-coach-collection-001",
+    "name": "GYM AI Coach API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for GYM AI Coach Backend API."
+  },
+  "item": [
+    {
+      "name": "Get User Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/users/profile", "host": ["{{base_url}}"], "path": ["api", "users", "profile"] }
+      }
+    },
+    {
+      "name": "Update User Profile",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Jane Doe\",\n  \"bio\": \"Loves yoga and running.\",\n  \"age\": 28,\n  \"gender\": \"female\",\n  \"location\": \"San Francisco, CA\",\n  \"timezone\": \"America/Los_Angeles\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/users/profile", "host": ["{{base_url}}"], "path": ["api", "users", "profile"] }
+      }
+    },
+    {
+      "name": "Get Preferences",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/users/preferences", "host": ["{{base_url}}"], "path": ["api", "users", "preferences"] }
+      }
+    },
+    {
+      "name": "Update Preferences",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"preferredWorkoutDays\": [\"tuesday\", \"thursday\"],\n  \"units\": \"imperial\"\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/users/preferences", "host": ["{{base_url}}"], "path": ["api", "users", "preferences"] }
+      }
+    },
+    {
+      "name": "Get Measurements",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/users/measurements", "host": ["{{base_url}}"], "path": ["api", "users", "measurements"] }
+      }
+    },
+    {
+      "name": "Add Measurement",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"weight\": 80,\n  \"height\": 180,\n  \"bmi\": 24.7\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/users/measurements", "host": ["{{base_url}}"], "path": ["api", "users", "measurements"] }
+      }
+    },
+    {
+      "name": "Update Measurement",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"weight\": 82\n}"
+        },
+        "url": { "raw": "{{base_url}}/api/users/measurements/:id", "host": ["{{base_url}}"], "path": ["api", "users", "measurements", ":id"] }
+      }
+    },
+    {
+      "name": "Delete Measurement",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/users/measurements/:id", "host": ["{{base_url}}"], "path": ["api", "users", "measurements", ":id"] }
+      }
+    },
+    {
+      "name": "Get Progress",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
+        ],
+        "url": { "raw": "{{base_url}}/api/users/measurements/progress", "host": ["{{base_url}}"], "path": ["api", "users", "measurements", "progress"] }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000" },
+    { "key": "jwt_token", "value": "<your-jwt-token>" }
+  ]
 }

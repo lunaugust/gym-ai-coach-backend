@@ -1,4 +1,7 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+
+const generateJti = () => (typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : crypto.randomBytes(16).toString('hex'));
 
 /**
  * Generates a JWT access token.
@@ -9,6 +12,7 @@ const jwt = require('jsonwebtoken');
 const generateAccessToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_ACCESS_EXPIRATION,
+    jwtid: generateJti(),
   });
 };
 
@@ -21,6 +25,7 @@ const generateAccessToken = (payload) => {
 const generateRefreshToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
     expiresIn: process.env.JWT_REFRESH_EXPIRATION,
+    jwtid: generateJti(),
   });
 };
 

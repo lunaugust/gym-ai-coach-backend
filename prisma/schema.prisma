@@ -10,6 +10,46 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ----- Enums for stronger data integrity -----
+enum Gender {
+  male
+  female
+  other
+  prefer_not_to_say
+}
+
+enum ActivityLevel {
+  sedentary
+  lightly_active
+  moderately_active
+  very_active
+  extremely_active
+}
+
+enum PreferredWorkoutTime {
+  morning
+  afternoon
+  evening
+}
+
+enum IntensityPreference {
+  low
+  moderate
+  high
+  varied
+}
+
+enum Units {
+  metric
+  imperial
+}
+
+enum ProfileVisibility {
+  private
+  friends
+  public
+}
+
 model User {
   id               String   @id @default(cuid())
   email            String   @unique
@@ -24,7 +64,20 @@ model User {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  refreshTokens RefreshToken[]
+  // New profile fields
+  avatar           String?
+  bio              String?
+  gender           Gender?
+  dateOfBirth      DateTime?
+  phone            String?
+  location         String?
+  timezone         String?
+
+  // Relations
+  fitnessProfile   UserFitnessProfile?
+  preferences      UserPreferences?
+  measurements     UserMeasurement[]
+  refreshTokens    RefreshToken[]
 
   @@map("users")
 }
@@ -39,4 +92,128 @@ model RefreshToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
+}
+
+// Detailed fitness profile (1:1 with User)
+model UserFitnessProfile {
+  id                  String          @id @default(cuid())
+  userId              String          @unique
+
+  // Current fitness level details
+  currentWeight       Float?
+  targetWeight        Float?
+  bodyFatPercentage   Float?
+  muscleMass          Float?
+
+  // Activity level and history
+  activityLevel       ActivityLevel?
+  workoutFrequency    Int?
+  previousExperience  String?
+
+  // Health information
+  injuries            String[]
+  medicalConditions   String[]
+  medications         String[]
+
+  // Goals and motivation
+  primaryGoals        String[]
+  secondaryGoals      String[]
+  targetDate          DateTime?
+  motivations         String[]
+
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_fitness_profiles")
+}
+
+// User preferences (1:1 with User)
+model UserPreferences {
+  id                          String               @id @default(cuid())
+  userId                      String               @unique
+
+  // Workout preferences
+  preferredWorkoutDays        String[]
+  preferredWorkoutTime        PreferredWorkoutTime?
+  sessionDuration             Int?
+  restBetweenSets             Int?
+
+  // Equipment preferences
+  availableEquipment          String[]
+  gymAccess                   Boolean              @default(true)
+  homeGymSetup                Boolean              @default(false)
+
+  // Training style preferences
+  preferredTrainingStyles     String[]
+  intensityPreference         IntensityPreference?
+  musicPreference             String[]
+
+  // Nutrition preferences (for future features)
+  dietaryRestrictions         String[]
+  allergies                   String[]
+
+  // Notification preferences
+  workoutReminders            Boolean              @default(true)
+  progressUpdates             Boolean              @default(true)
+  motivationalTips            Boolean              @default(true)
+  emailNotifications          Boolean              @default(true)
+  pushNotifications           Boolean              @default(true)
+
+  // Privacy settings
+  profileVisibility           ProfileVisibility    @default(private)
+  dataSharing                 Boolean              @default(false)
+
+  // App preferences
+  units                       Units                @default(metric)
+  language                    String               @default("en")
+  theme                       String               @default("light")
+
+  createdAt                   DateTime             @default(now())
+  updatedAt                   DateTime             @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+// Measurements history (1:N with User)
+model UserMeasurement {
+  id           String   @id @default(cuid())
+  userId       String
+
+  // Body measurements
+  weight       Float?
+  height       Float?
+  bodyFat      Float?
+  muscleMass   Float?
+
+  // Body part measurements (in cm or inches)
+  chest        Float?
+  waist        Float?
+  hips         Float?
+  biceps       Float?
+  thighs       Float?
+  neck         Float?
+
+  // Additional metrics
+  bmi          Float?
+  visceralFat  Float?
+  waterWeight  Float?
+  boneMass     Float?
+
+  // Progress photos (URLs)
+  frontPhoto   String?
+  sidePhoto    String?
+  backPhoto    String?
+
+  notes        String?
+  recordedAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, recordedAt])
+  @@map("user_measurements")
 }

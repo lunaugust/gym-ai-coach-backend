@@ -8,7 +8,7 @@ const ApiError = require('../utils/ApiError');
  * @route   POST /api/auth/register
  * @access  Public
  */
-const register = catchAsync(async (req, res) => {
+const register = catchAsync(async (req, res, next) => {
   const { user, tokens } = await authService.register(req.body);
   res.status(201).json({
     success: true,
@@ -22,7 +22,7 @@ const register = catchAsync(async (req, res) => {
  * @route   POST /api/auth/login
  * @access  Public
  */
-const login = catchAsync(async (req, res) => {
+const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
   const { user, tokens } = await authService.login(email, password);
   res.status(200).json({
@@ -37,7 +37,7 @@ const login = catchAsync(async (req, res) => {
  * @route   POST /api/auth/refresh
  * @access  Public
  */
-const refresh = catchAsync(async (req, res) => {
+const refresh = catchAsync(async (req, res, next) => {
   const { refreshToken } = req.body;
   const { tokens } = await authService.refresh(refreshToken);
   res.status(200).json({
@@ -52,7 +52,7 @@ const refresh = catchAsync(async (req, res) => {
  * @route   POST /api/auth/logout
  * @access  Private
  */
-const logout = catchAsync(async (req, res) => {
+const logout = catchAsync(async (req, res, next) => {
   // Note: req.user.userId will be attached by the 'auth' middleware
   await authService.logout(req.user.userId);
   res.status(204).send();
@@ -63,7 +63,7 @@ const logout = catchAsync(async (req, res) => {
  * @route   GET /api/auth/profile
  * @access  Private
  */
-const getProfile = catchAsync(async (req, res) => {
+const getProfile = catchAsync(async (req, res, next) => {
   // Note: req.user.userId will be attached by the 'auth' middleware
   const userId = req.user.userId;
   const user = await prisma.user.findUnique({

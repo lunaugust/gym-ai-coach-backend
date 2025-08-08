@@ -37,19 +37,35 @@ const register = async (userData) => {
       experience_level,
     },
   });
+  // Ensure the user record exists in DB before writing dependent records
+  // This extra read ensures some eventual consistency issues in certain test DBs
+  await prisma.user.findUnique({ where: { id: user.id } });
 
   // 4. Generate tokens
   const tokens = generateTokens(user);
 
   // 5. Store the refresh token in the database
   const expiresAt = new Date(Date.now() + ms(process.env.JWT_REFRESH_EXPIRATION));
-  await prisma.refreshToken.create({
-    data: {
-      token: tokens.refreshToken,
-      userId: user.id,
-      expiresAt,
-    },
-  });
+  try {
+    await prisma.refreshToken.create({
+      data: {
+        token: tokens.refreshToken,
+        userId: user.id,
+        expiresAt,
+      },
+    });
+  } catch (e) {
+    // In rare cases of token collision due to unique constraint, re-issue tokens once
+    const retryTokens = generateTokens(user);
+    await prisma.refreshToken.create({
+      data: {
+        token: retryTokens.refreshToken,
+        userId: user.id,
+        expiresAt,
+      },
+    });
+    return { user: (({ password, ...rest }) => rest)(user), tokens: retryTokens };
+  }
 
   // 6. Return user and tokens (exclude password from user object)
   const { password: _, ...userWithoutPassword } = user;
@@ -78,13 +94,27 @@ const login = async (email, password) => {
   // 3. Generate and store new tokens (same logic as register)
   const tokens = generateTokens(user);
   const expiresAt = new Date(Date.now() + ms(process.env.JWT_REFRESH_EXPIRATION));
-  await prisma.refreshToken.create({
-    data: {
-      token: tokens.refreshToken,
-      userId: user.id,
-      expiresAt,
-    },
-  });
+  try {
+    await prisma.refreshToken.create({
+      data: {
+        token: tokens.refreshToken,
+        userId: user.id,
+        expiresAt,
+      },
+    });
+  } catch (e) {
+    // Token collision retry
+    const retryTokens = generateTokens(user);
+    await prisma.refreshToken.create({
+      data: {
+        token: retryTokens.refreshToken,
+        userId: user.id,
+        expiresAt,
+      },
+    });
+    const { password: __, ...userWithoutPassword2 } = user;
+    return { user: userWithoutPassword2, tokens: retryTokens };
+  }
 
   const { password: _, ...userWithoutPassword } = user;
   return { user: userWithoutPassword, tokens };

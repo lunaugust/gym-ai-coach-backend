@@ -38,6 +38,7 @@ module.exports = {
       displayName: 'integration',
       testMatch: ['<rootDir>/tests/integration/**/*.test.js'],
       setupFilesAfterEnv: ['<rootDir>/tests/setup/testSetup.js', 'jest-extended/all'], // Include the database setup
+      maxWorkers: 1,
     },
   ],
 };
