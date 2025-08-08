@@ -1,12 +1,4 @@
-const authService = require('../../../src/services/authService');
-const prisma = require('../../../src/config/database');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { generateTokens } = require('../../../src/utils/jwt');
-const { createMinimalUserData } = require('../../factories/userFactory');
-const ApiError = require('../../../src/utils/ApiError');
-
-// Mock the modules that authService depends on
+// Mock dependencies BEFORE importing the module under test
 jest.mock('../../../src/config/database', () => ({
   user: {
     findUnique: jest.fn(),
@@ -22,6 +14,14 @@ jest.mock('../../../src/config/database', () => ({
 jest.mock('bcryptjs');
 jest.mock('../../../src/utils/jwt');
 jest.mock('jsonwebtoken');
+
+const authService = require('../../../src/services/authService');
+const prisma = require('../../../src/config/database');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { generateTokens } = require('../../../src/utils/jwt');
+const { createMinimalUserData } = require('../../factories/userFactory');
+const ApiError = require('../../../src/utils/ApiError');
 
 
 describe('Unit Tests: AuthService', () => {

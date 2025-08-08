@@ -9,6 +9,11 @@ const ApiError = require('./utils/ApiError');
 
 const app = express();
 
+// In test/development, trust proxy so rate limit can use X-Forwarded-For for IPs in tests
+if (process.env.NODE_ENV !== 'production') {
+  app.set('trust proxy', true);
+}
+
 // --- Morgan (HTTP Request Logger) ---
 // Create a stream object with a 'write' function that will be used by `morgan`
 const stream = {

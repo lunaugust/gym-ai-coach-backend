@@ -97,7 +97,12 @@ const login = async (email, password) => {
  */
 const refresh = async (oldRefreshToken) => {
   // 1. Verify the refresh token
-  const payload = jwt.verify(oldRefreshToken, process.env.JWT_REFRESH_SECRET);
+  let payload;
+  try {
+    payload = jwt.verify(oldRefreshToken, process.env.JWT_REFRESH_SECRET);
+  } catch (err) {
+    throw new ApiError(401, 'Invalid refresh token.', 'INVALID_TOKEN');
+  }
 
   // 2. Check if the token exists in the database (it hasn't been revoked)
   const tokenInDb = await prisma.refreshToken.findUnique({

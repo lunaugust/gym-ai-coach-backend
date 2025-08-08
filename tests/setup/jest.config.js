@@ -1,5 +1,11 @@
+const path = require('path');
+
+// Ensure all projects run from repository root (two levels up from this config file)
+const ROOT_DIR = path.resolve(__dirname, '..', '..');
+
 // This is the base configuration that will be shared across all test projects
 const commonConfig = {
+  rootDir: ROOT_DIR,
   clearMocks: true,
   testEnvironment: 'node',
   coverageDirectory: 'coverage',
@@ -13,8 +19,8 @@ const commonConfig = {
     },
   },
   transform: {},
-  verbose: true,
-  bail: 1,
+  //verbose: true,
+  //bail: 1,
 };
 
 module.exports = {

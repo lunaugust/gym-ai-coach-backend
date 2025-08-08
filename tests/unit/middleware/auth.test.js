@@ -1,9 +1,8 @@
-const auth = require('../../../src/middleware/auth');
-const jwt = require('jsonwebtoken');
-const ApiError = require('../../../src/utils/ApiError');
-
-// Mock the jsonwebtoken library to control its behavior
+// Mock the jsonwebtoken library to control its behavior BEFORE requiring the middleware
 jest.mock('jsonwebtoken');
+const jwt = require('jsonwebtoken');
+const auth = require('../../../src/middleware/auth');
+const ApiError = require('../../../src/utils/ApiError');
 
 describe('Unit Tests: Auth Middleware', () => {
   let req;
