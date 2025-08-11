@@ -18,7 +18,16 @@ const commonConfig = {
       statements: 90,
     },
   },
-  transform: {},
+  transform: {
+    "^.+\\.(ts|tsx)$": [
+      "ts-jest",
+      {
+        tsconfig: "tsconfig.json",
+        isolatedModules: true
+      }
+    ]
+  },
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   //verbose: true,
   //bail: 1,
 };
