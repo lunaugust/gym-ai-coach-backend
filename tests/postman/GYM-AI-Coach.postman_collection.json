@@ -1,124 +1,1246 @@
 {
-  "info": {
-    "_postman_id": "gym-ai-coach-collection-001",
-    "name": "GYM AI Coach API",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Postman collection for GYM AI Coach Backend API."
-  },
-  "item": [
-    {
-      "name": "Get User Profile",
-      "request": {
-        "method": "GET",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
-        ],
-        "url": { "raw": "{{base_url}}/api/users/profile", "host": ["{{base_url}}"], "path": ["api", "users", "profile"] }
-      }
-    },
-    {
-      "name": "Update User Profile",
-      "request": {
-        "method": "PUT",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
-          { "key": "Content-Type", "value": "application/json", "type": "text" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"name\": \"Jane Doe\",\n  \"bio\": \"Loves yoga and running.\",\n  \"age\": 28,\n  \"gender\": \"female\",\n  \"location\": \"San Francisco, CA\",\n  \"timezone\": \"America/Los_Angeles\"\n}"
-        },
-        "url": { "raw": "{{base_url}}/api/users/profile", "host": ["{{base_url}}"], "path": ["api", "users", "profile"] }
-      }
-    },
-    {
-      "name": "Get Preferences",
-      "request": {
-        "method": "GET",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
-        ],
-        "url": { "raw": "{{base_url}}/api/users/preferences", "host": ["{{base_url}}"], "path": ["api", "users", "preferences"] }
-      }
-    },
-    {
-      "name": "Update Preferences",
-      "request": {
-        "method": "PUT",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
-          { "key": "Content-Type", "value": "application/json", "type": "text" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"preferredWorkoutDays\": [\"tuesday\", \"thursday\"],\n  \"units\": \"imperial\"\n}"
-        },
-        "url": { "raw": "{{base_url}}/api/users/preferences", "host": ["{{base_url}}"], "path": ["api", "users", "preferences"] }
-      }
-    },
-    {
-      "name": "Get Measurements",
-      "request": {
-        "method": "GET",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
-        ],
-        "url": { "raw": "{{base_url}}/api/users/measurements", "host": ["{{base_url}}"], "path": ["api", "users", "measurements"] }
-      }
-    },
-    {
-      "name": "Add Measurement",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
-          { "key": "Content-Type", "value": "application/json", "type": "text" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"weight\": 80,\n  \"height\": 180,\n  \"bmi\": 24.7\n}"
-        },
-        "url": { "raw": "{{base_url}}/api/users/measurements", "host": ["{{base_url}}"], "path": ["api", "users", "measurements"] }
-      }
-    },
-    {
-      "name": "Update Measurement",
-      "request": {
-        "method": "PUT",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" },
-          { "key": "Content-Type", "value": "application/json", "type": "text" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"weight\": 82\n}"
-        },
-        "url": { "raw": "{{base_url}}/api/users/measurements/:id", "host": ["{{base_url}}"], "path": ["api", "users", "measurements", ":id"] }
-      }
-    },
-    {
-      "name": "Delete Measurement",
-      "request": {
-        "method": "DELETE",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
-        ],
-        "url": { "raw": "{{base_url}}/api/users/measurements/:id", "host": ["{{base_url}}"], "path": ["api", "users", "measurements", ":id"] }
-      }
-    },
-    {
-      "name": "Get Progress",
-      "request": {
-        "method": "GET",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{jwt_token}}", "type": "text" }
-        ],
-        "url": { "raw": "{{base_url}}/api/users/measurements/progress", "host": ["{{base_url}}"], "path": ["api", "users", "measurements", "progress"] }
-      }
-    }
-  ],
-  "variable": [
-    { "key": "base_url", "value": "http://localhost:3000" },
-    { "key": "jwt_token", "value": "<your-jwt-token>" }
-  ]
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+		"name": "GYM AI Coach API",
+		"description": "A comprehensive collection for testing the GYM AI Coach API including authentication, user profile management, fitness profiles, preferences, and measurements.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "1. Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"if (pm.response.code === 201 && response.data.tokens) {",
+									"    pm.collectionVariables.set(\"accessToken\", response.data.tokens.accessToken);",
+									"    pm.collectionVariables.set(\"refreshToken\", response.data.tokens.refreshToken);",
+									"    console.log(\"Access and Refresh tokens saved to collection variables.\");",
+									"}",
+									"",
+									"pm.test(\"Response contains user and token data\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('user');",
+									"    pm.expect(response.data).to.have.property('tokens');",
+									"    pm.expect(response.data.tokens).to.have.property('accessToken');",
+									"    pm.expect(response.data.tokens).to.have.property('refreshToken');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"{{$randomEmail}}\",\n    \"password\": \"Password123!\",\n    \"name\": \"{{$randomFullName}}\",\n    \"age\": 28,\n    \"weight\": 85.5,\n    \"height\": 180,\n    \"goal\": \"muscle_gain\",\n    \"experience_level\": \"intermediate\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"if (pm.response.code === 200 && response.data.tokens) {",
+									"    pm.collectionVariables.set(\"accessToken\", response.data.tokens.accessToken);",
+									"    pm.collectionVariables.set(\"refreshToken\", response.data.tokens.refreshToken);",
+									"    console.log(\"Access and Refresh tokens saved to collection variables.\");",
+									"}",
+									"",
+									"pm.test(\"Response contains user and token data\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('user');",
+									"    pm.expect(response.data).to.have.property('tokens');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"Password123!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Get Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Profile data is returned correctly\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data.user).to.have.property('id');",
+									"    pm.expect(response.data.user).to.have.property('email');",
+									"    pm.expect(response.data.user).to.not.have.property('password');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Refresh Tokens",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"if (pm.response.code === 200 && response.data.tokens) {",
+									"    pm.collectionVariables.set(\"accessToken\", response.data.tokens.accessToken);",
+									"    pm.collectionVariables.set(\"refreshToken\", response.data.tokens.refreshToken);",
+									"    console.log(\"Tokens have been refreshed and updated.\");",
+									"}",
+									"",
+									"pm.test(\"Response contains new tokens\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data.tokens).to.have.property('accessToken');",
+									"    pm.expect(response.data.tokens).to.have.property('refreshToken');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/refresh",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204 No Content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"// Clear tokens after successful logout",
+									"if (pm.response.code === 204) {",
+									"    pm.collectionVariables.unset(\"accessToken\");",
+									"    pm.collectionVariables.unset(\"refreshToken\");",
+									"    console.log(\"Tokens cleared after logout.\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints related to user authentication."
+		},
+		{
+			"name": "User Profile Management",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Profile data is returned correctly\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('user');",
+									"    pm.expect(response.data).to.have.property('fitnessProfile');",
+									"    pm.expect(response.data).to.have.property('preferences');",
+									"    pm.expect(response.data).to.have.property('measurements');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Profile updated successfully\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('user');",
+									"    pm.expect(response.data.user.name).to.eql('John Updated');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Updated\",\n    \"age\": 30,\n    \"weight\": 88.5,\n    \"height\": 185,\n    \"bio\": \"Fitness enthusiast passionate about strength training and nutrition.\",\n    \"gender\": \"male\",\n    \"phone\": \"+1234567890\",\n    \"location\": \"San Francisco, CA\",\n    \"timezone\": \"America/Los_Angeles\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Avatar",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Avatar uploaded successfully\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('avatarUrl');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/profile/avatar",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"profile",
+								"avatar"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for user profile management including personal information and avatar upload."
+		},
+		{
+			"name": "Fitness Profile",
+			"item": [
+				{
+					"name": "Get Fitness Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Fitness profile data is returned\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('fitnessProfile');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/fitness-profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"fitness-profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Fitness Profile",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Fitness profile updated successfully\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('fitnessProfile');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"currentWeight\": 85.5,\n    \"targetWeight\": 80.0,\n    \"bodyFatPercentage\": 15.5,\n    \"muscleMass\": 45.2,\n    \"activityLevel\": \"moderately_active\",\n    \"workoutFrequency\": 4,\n    \"previousExperience\": \"I have been working out for 2 years, mostly focusing on strength training and some cardio.\",\n    \"injuries\": [\"Previous knee injury in 2021\"],\n    \"medicalConditions\": [],\n    \"medications\": [],\n    \"primaryGoals\": [\"muscle_gain\", \"strength\"],\n    \"secondaryGoals\": [\"endurance\"],\n    \"targetDate\": \"2024-12-31T00:00:00.000Z\",\n    \"motivations\": [\"Improve overall health\", \"Build confidence\", \"Increase energy levels\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/fitness-profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"fitness-profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fitness Profile Onboarding",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Onboarding completed successfully\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('fitnessProfile');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"currentWeight\": 75.0,\n    \"targetWeight\": 70.0,\n    \"activityLevel\": \"lightly_active\",\n    \"workoutFrequency\": 3,\n    \"primaryGoals\": [\"weight_loss\", \"general_fitness\"],\n    \"previousExperience\": \"Beginner with minimal gym experience\",\n    \"injuries\": [],\n    \"medicalConditions\": [],\n    \"motivations\": [\"Get in shape\", \"Feel more confident\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/fitness-profile/onboarding",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"fitness-profile",
+								"onboarding"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for managing fitness profile including goals, experience, and physical metrics."
+		},
+		{
+			"name": "Preferences",
+			"item": [
+				{
+					"name": "Get Preferences",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Preferences data is returned\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('preferences');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/preferences",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"preferences"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Preferences",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Preferences updated successfully\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('preferences');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"preferredWorkoutDays\": [\"monday\", \"wednesday\", \"friday\"],\n    \"preferredWorkoutTime\": \"morning\",\n    \"sessionDuration\": 60,\n    \"restBetweenSets\": 90,\n    \"availableEquipment\": [\"dumbbells\", \"barbell\", \"machines\"],\n    \"gymAccess\": true,\n    \"homeGymSetup\": false,\n    \"preferredTrainingStyles\": [\"strength\", \"hypertrophy\"],\n    \"intensityPreference\": \"moderate\",\n    \"musicPreference\": [\"Rock\", \"Electronic\"],\n    \"dietaryRestrictions\": [\"Vegetarian\"],\n    \"allergies\": [],\n    \"workoutReminders\": true,\n    \"progressUpdates\": true,\n    \"motivationalTips\": true,\n    \"emailNotifications\": true,\n    \"pushNotifications\": true,\n    \"profileVisibility\": \"private\",\n    \"dataSharing\": false,\n    \"units\": \"metric\",\n    \"language\": \"en\",\n    \"theme\": \"dark\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/preferences",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"preferences"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Notification Preferences",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Notification preferences updated successfully\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('preferences');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"workoutReminders\": false,\n    \"progressUpdates\": true,\n    \"motivationalTips\": false,\n    \"emailNotifications\": true,\n    \"pushNotifications\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/preferences/notifications",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"preferences",
+								"notifications"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Privacy Preferences",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Privacy preferences updated successfully\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('preferences');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"profileVisibility\": \"friends\",\n    \"dataSharing\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/preferences/privacy",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"preferences",
+								"privacy"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for managing user preferences including workout settings, notifications, and privacy."
+		},
+		{
+			"name": "Measurements",
+			"item": [
+				{
+					"name": "Get Measurements",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Measurements data is returned\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('measurements');",
+									"    pm.expect(response.data.measurements).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/measurements",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"measurements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Measurements with Date Range",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Filtered measurements data is returned\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('measurements');",
+									"    pm.expect(response.data.measurements).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/measurements?from=2024-01-01&to=2024-12-31",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"measurements"
+							],
+							"query": [
+								{
+									"key": "from",
+									"value": "2024-01-01"
+								},
+								{
+									"key": "to",
+									"value": "2024-12-31"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Measurement",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const response = pm.response.json();",
+									"",
+									"if (pm.response.code === 201 && response.data.measurement) {",
+									"    pm.collectionVariables.set(\"measurementId\", response.data.measurement.id);",
+									"    console.log(\"Measurement ID saved: \" + response.data.measurement.id);",
+									"}",
+									"",
+									"pm.test(\"Measurement created successfully\", function () {",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('measurement');",
+									"    pm.expect(response.data.measurement).to.have.property('id');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"weight\": 85.5,\n    \"height\": 180,\n    \"bodyFat\": 15.5,\n    \"muscleMass\": 45.2,\n    \"chest\": 100,\n    \"waist\": 85,\n    \"hips\": 95,\n    \"biceps\": 35,\n    \"thighs\": 60,\n    \"neck\": 38,\n    \"bmi\": 26.4,\n    \"visceralFat\": 8.5,\n    \"waterWeight\": 60.2,\n    \"boneMass\": 3.2,\n    \"notes\": \"Feeling stronger this week, increased weights in bench press.\",\n    \"recordedAt\": \"2024-08-15T10:30:00.000Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/measurements",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"measurements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Measurement",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Measurement updated successfully\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('measurement');",
+									"    pm.expect(response.data.measurement.weight).to.eql(86.0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"weight\": 86.0,\n    \"bodyFat\": 15.2,\n    \"muscleMass\": 45.8,\n    \"notes\": \"Updated weight after morning workout, slight muscle gain visible.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/users/measurements/{{measurementId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"measurements",
+								"{{measurementId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Progress",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Progress data is returned\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('latest');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/measurements/progress",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"measurements",
+								"progress"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Measurement",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204 No Content\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"// Clear the measurement ID after successful deletion",
+									"if (pm.response.code === 204) {",
+									"    pm.collectionVariables.unset(\"measurementId\");",
+									"    console.log(\"Measurement deleted and ID cleared.\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/measurements/{{measurementId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"measurements",
+								"{{measurementId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for managing body measurements, progress tracking, and historical data."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "measurementId",
+			"value": "",
+			"type": "string"
+		}
+	]
 }
