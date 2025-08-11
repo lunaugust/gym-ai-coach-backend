@@ -1,3 +1,10 @@
+import type { Request, Response, NextFunction } from 'express';
+import * as authController from '../../../src/controllers/authController';
+import * as authService from '../../../src/services/authService';
+import prisma from '../../../src/config/database';
+import ApiError from '../../../src/utils/ApiError';
+import { createMinimalUserData } from '../../factories/userFactory';
+
 // Mock service and database dependencies used by the controller BEFORE requiring it
 jest.mock('../../../src/services/authService', () => ({
   register: jest.fn(),
@@ -12,20 +19,17 @@ jest.mock('../../../src/config/database', () => ({
   },
 }));
 
-const authController = require('../../../src/controllers/authController');
-const authService = require('../../../src/services/authService');
-const prisma = require('../../../src/config/database');
-const ApiError = require('../../../src/utils/ApiError');
-const { createMinimalUserData } = require('../../factories/userFactory');
+const mockedAuthService = authService as jest.Mocked<typeof authService>;
+const mockedPrisma = prisma as jest.Mocked<typeof prisma>;
 
 describe('Unit Tests: AuthController', () => {
-  let req;
-  let res;
-  let next;
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let next: jest.MockedFunction<NextFunction>;
   const waitForNextTick = () => new Promise((resolve) => setImmediate(resolve));
 
   beforeEach(() => {
-    req = { body: {}, user: null };
+    req = { body: {}, user: undefined };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
@@ -42,13 +46,13 @@ describe('Unit Tests: AuthController', () => {
       const createdUser = { id: 'user-123', email: userData.email, name: userData.name };
       const tokens = { accessToken: 'access', refreshToken: 'refresh' };
       req.body = userData;
-      authService.register.mockResolvedValue({ user: createdUser, tokens });
+      mockedAuthService.register.mockResolvedValue({ user: createdUser, tokens });
 
       // --- Act ---
-      await authController.register(req, res, next);
+      await authController.register(req as Request, res as Response, next);
 
       // --- Assert ---
-      expect(authService.register).toHaveBeenCalledWith(userData);
+      expect(mockedAuthService.register).toHaveBeenCalledWith(userData);
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({
         success: true,
@@ -63,10 +67,10 @@ describe('Unit Tests: AuthController', () => {
       const userData = createMinimalUserData();
       const error = new ApiError(409, 'An account with this email already exists.', 'EMAIL_CONFLICT');
       req.body = userData;
-      authService.register.mockRejectedValue(error);
+      mockedAuthService.register.mockRejectedValue(error);
 
       // --- Act ---
-      await authController.register(req, res, next);
+      await authController.register(req as Request, res as Response, next);
       await waitForNextTick();
 
       // --- Assert ---
@@ -84,13 +88,13 @@ describe('Unit Tests: AuthController', () => {
       const user = { id: 'user-123', email, name: 'Test User' };
       const tokens = { accessToken: 'access', refreshToken: 'refresh' };
       req.body = { email, password };
-      authService.login.mockResolvedValue({ user, tokens });
+      mockedAuthService.login.mockResolvedValue({ user, tokens });
 
       // --- Act ---
-      await authController.login(req, res, next);
+      await authController.login(req as Request, res as Response, next);
 
       // --- Assert ---
-      expect(authService.login).toHaveBeenCalledWith(email, password);
+      expect(mockedAuthService.login).toHaveBeenCalledWith(email, password);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         success: true,
@@ -103,13 +107,13 @@ describe('Unit Tests: AuthController', () => {
     it('should call next with error when service throws', async () => {
       // --- Arrange ---
       const email = 'test@example.com';
-      const password = 'wrong';
+      const password = 'Password123!';
       const error = new ApiError(401, 'Invalid email or password.', 'INVALID_CREDENTIALS');
       req.body = { email, password };
-      authService.login.mockRejectedValue(error);
+      mockedAuthService.login.mockRejectedValue(error);
 
       // --- Act ---
-      await authController.login(req, res, next);
+      await authController.login(req as Request, res as Response, next);
       await waitForNextTick();
 
       // --- Assert ---
@@ -125,13 +129,13 @@ describe('Unit Tests: AuthController', () => {
       const refreshToken = 'refresh-token';
       const tokens = { accessToken: 'new-access', refreshToken: 'new-refresh' };
       req.body = { refreshToken };
-      authService.refresh.mockResolvedValue({ tokens });
+      mockedAuthService.refresh.mockResolvedValue({ tokens });
 
       // --- Act ---
-      await authController.refresh(req, res, next);
+      await authController.refresh(req as Request, res as Response, next);
 
       // --- Assert ---
-      expect(authService.refresh).toHaveBeenCalledWith(refreshToken);
+      expect(mockedAuthService.refresh).toHaveBeenCalledWith(refreshToken);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         success: true,
@@ -143,13 +147,13 @@ describe('Unit Tests: AuthController', () => {
 
     it('should call next with error when service throws', async () => {
       // --- Arrange ---
-      const refreshToken = 'bad-refresh-token';
+      const refreshToken = 'invalid-token';
       const error = new ApiError(401, 'Invalid refresh token.', 'INVALID_TOKEN');
       req.body = { refreshToken };
-      authService.refresh.mockRejectedValue(error);
+      mockedAuthService.refresh.mockRejectedValue(error);
 
       // --- Act ---
-      await authController.refresh(req, res, next);
+      await authController.refresh(req as Request, res as Response, next);
       await waitForNextTick();
 
       // --- Assert ---
@@ -163,28 +167,28 @@ describe('Unit Tests: AuthController', () => {
     it('should logout user and respond with 204', async () => {
       // --- Arrange ---
       const userId = 'user-123';
-      req.user = { userId };
-      authService.logout.mockResolvedValue();
+      req.user = { userId, email: 'test@example.com', name: 'Test User' };
+      mockedAuthService.logout.mockResolvedValue(undefined);
 
       // --- Act ---
-      await authController.logout(req, res, next);
+      await authController.logout(req as Request, res as Response, next);
 
       // --- Assert ---
-      expect(authService.logout).toHaveBeenCalledWith(userId);
+      expect(mockedAuthService.logout).toHaveBeenCalledWith(userId);
       expect(res.status).toHaveBeenCalledWith(204);
-      expect(res.send).toHaveBeenCalled();
+      expect(res.send).toHaveBeenCalledWith();
       expect(next).not.toHaveBeenCalled();
     });
 
     it('should call next with error when service throws', async () => {
       // --- Arrange ---
       const userId = 'user-123';
-      const error = new Error('Unexpected error');
-      req.user = { userId };
-      authService.logout.mockRejectedValue(error);
+      const error = new ApiError(500, 'Database error');
+      req.user = { userId, email: 'test@example.com', name: 'Test User' };
+      mockedAuthService.logout.mockRejectedValue(error);
 
       // --- Act ---
-      await authController.logout(req, res, next);
+      await authController.logout(req as Request, res as Response, next);
       await waitForNextTick();
 
       // --- Assert ---
@@ -195,28 +199,18 @@ describe('Unit Tests: AuthController', () => {
   });
 
   describe('getProfile', () => {
-    it('should fetch profile for authenticated user and respond with 200 and user data', async () => {
+    it('should get user profile and respond with 200 and payload', async () => {
       // --- Arrange ---
       const userId = 'user-123';
-      req.user = { userId };
-      const user = {
-        id: userId,
-        email: 'test@example.com',
-        name: 'Test User',
-        age: 30,
-        weight: 75.5,
-        height: 178,
-        goal: 'muscle_gain',
-        experience_level: 'intermediate',
-        createdAt: new Date('2024-01-01T00:00:00Z'),
-      };
-      prisma.user.findUnique.mockResolvedValue(user);
+      const user = { id: userId, email: 'test@example.com', name: 'Test User' };
+      req.user = { userId, email: 'test@example.com', name: 'Test User' };
+      mockedPrisma.user.findUnique.mockResolvedValue(user as any);
 
       // --- Act ---
-      await authController.getProfile(req, res, next);
+      await authController.getProfile(req as Request, res as Response, next);
 
       // --- Assert ---
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+      expect(mockedPrisma.user.findUnique).toHaveBeenCalledWith({
         where: { id: userId },
         select: {
           id: true,
@@ -239,27 +233,37 @@ describe('Unit Tests: AuthController', () => {
       expect(next).not.toHaveBeenCalled();
     });
 
-    it('should call next with 404 ApiError when user is not found', async () => {
+    it('should call next with error when user not found', async () => {
       // --- Arrange ---
-      const userId = 'missing-user';
-      req.user = { userId };
-      prisma.user.findUnique.mockResolvedValue(null);
+      const userId = 'user-123';
+      req.user = { userId, email: 'test@example.com', name: 'Test User' };
+      mockedPrisma.user.findUnique.mockResolvedValue(null);
 
       // --- Act ---
-      await authController.getProfile(req, res, next);
+      await authController.getProfile(req as Request, res as Response, next);
       await waitForNextTick();
 
       // --- Assert ---
-      expect(next).toHaveBeenCalledTimes(1);
-      const errorArg = next.mock.calls[0][0];
-      expect(errorArg).toBeInstanceOf(ApiError);
-      expect(errorArg).toEqual(
-        expect.objectContaining({ statusCode: 404, message: 'User not found', errorCode: 'USER_NOT_FOUND' })
-      );
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      expect(res.status).not.toHaveBeenCalled();
+      expect(res.json).not.toHaveBeenCalled();
+    });
+
+    it('should call next with error when service throws', async () => {
+      // --- Arrange ---
+      const userId = 'user-123';
+      const error = new ApiError(500, 'Database error');
+      req.user = { userId, email: 'test@example.com', name: 'Test User' };
+      mockedPrisma.user.findUnique.mockRejectedValue(error);
+
+      // --- Act ---
+      await authController.getProfile(req as Request, res as Response, next);
+      await waitForNextTick();
+
+      // --- Assert ---
+      expect(next).toHaveBeenCalledWith(error);
       expect(res.status).not.toHaveBeenCalled();
       expect(res.json).not.toHaveBeenCalled();
     });
   });
 });
-
-

@@ -1,4 +1,4 @@
-const { computeBmiMetric } = require('../../../src/utils/calculations');
+import { computeBmiMetric } from '../../../src/utils/calculations';
 
 describe('utils/calculations computeBmiMetric', () => {
   it('returns expected BMI rounded to one decimal', () => {
@@ -12,5 +12,3 @@ describe('utils/calculations computeBmiMetric', () => {
     expect(computeBmiMetric(80, 0)).toBeNull();
   });
 });
-
-

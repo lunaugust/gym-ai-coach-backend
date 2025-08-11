@@ -1,4 +1,6 @@
-const ApiError = require('../../../src/utils/ApiError');
+import ApiError from '../../../src/utils/ApiError';
+import * as userService from '../../../src/services/userService';
+import prisma from '../../../src/config/database';
 
 // Mock Prisma client used by the service
 jest.mock('../../../src/config/database', () => ({
@@ -17,8 +19,7 @@ jest.mock('../../../src/config/database', () => ({
   },
 }));
 
-const prisma = require('../../../src/config/database');
-const userService = require('../../../src/services/userService');
+const mockedPrisma = prisma as jest.Mocked<typeof prisma>;
 
 describe('userService', () => {
   beforeEach(() => {
@@ -27,10 +28,10 @@ describe('userService', () => {
 
   describe('fetchCompleteProfile', () => {
     it('returns combined profile data when user exists', async () => {
-      prisma.user.findUnique.mockResolvedValue({ id: 'u1', email: 'a@b.com', name: 'A' });
-      prisma.userFitnessProfile.findUnique.mockResolvedValue({ userId: 'u1', activityLevel: 'sedentary' });
-      prisma.userPreferences.findUnique.mockResolvedValue({ userId: 'u1', units: 'metric' });
-      prisma.userMeasurement.findFirst.mockResolvedValue({ userId: 'u1', weight: 80 });
+      mockedPrisma.user.findUnique.mockResolvedValue({ id: 'u1', email: 'a@b.com', name: 'A' } as any);
+      mockedPrisma.userFitnessProfile.findUnique.mockResolvedValue({ userId: 'u1', activityLevel: 'sedentary' } as any);
+      mockedPrisma.userPreferences.findUnique.mockResolvedValue({ userId: 'u1', units: 'metric' } as any);
+      mockedPrisma.userMeasurement.findFirst.mockResolvedValue({ userId: 'u1', weight: 80 } as any);
 
       const result = await userService.fetchCompleteProfile('u1');
       expect(result).toEqual(
@@ -41,11 +42,11 @@ describe('userService', () => {
           recentMeasurement: expect.objectContaining({ userId: 'u1' }),
         })
       );
-      expect(prisma.user.findUnique).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'u1' } }));
+      expect(mockedPrisma.user.findUnique).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'u1' } }));
     });
 
     it('throws ApiError(404) when user not found', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
+      mockedPrisma.user.findUnique.mockResolvedValue(null);
       await expect(userService.fetchCompleteProfile('nope')).rejects.toEqual(
         expect.objectContaining({ statusCode: 404, errorCode: 'USER_NOT_FOUND' })
       );
@@ -54,13 +55,13 @@ describe('userService', () => {
 
   describe('updateProfile', () => {
     it('updates only provided fields', async () => {
-      prisma.user.findUnique.mockResolvedValue({ id: 'u1' });
-      prisma.user.update.mockResolvedValue({ id: 'u1', bio: 'Hello', age: 30 });
+      mockedPrisma.user.findUnique.mockResolvedValue({ id: 'u1' } as any);
+      mockedPrisma.user.update.mockResolvedValue({ id: 'u1', bio: 'Hello', age: 30 } as any);
 
       const updated = await userService.updateProfile('u1', { bio: 'Hello', age: 30 });
 
       expect(updated).toEqual(expect.objectContaining({ id: 'u1', bio: 'Hello', age: 30 }));
-      expect(prisma.user.update).toHaveBeenCalledWith(
+      expect(mockedPrisma.user.update).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { id: 'u1' },
           data: expect.objectContaining({ bio: 'Hello', age: 30 }),
@@ -69,13 +70,11 @@ describe('userService', () => {
     });
 
     it('throws ApiError(404) when user not found', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
+      mockedPrisma.user.findUnique.mockResolvedValue(null);
       await expect(userService.updateProfile('x', { bio: 'a' })).rejects.toEqual(
         expect.objectContaining({ statusCode: 404, errorCode: 'USER_NOT_FOUND' })
       );
-      expect(prisma.user.update).not.toHaveBeenCalled();
+      expect(mockedPrisma.user.update).not.toHaveBeenCalled();
     });
   });
 });
-
-

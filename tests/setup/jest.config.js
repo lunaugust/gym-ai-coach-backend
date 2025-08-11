@@ -22,8 +22,7 @@ const commonConfig = {
     "^.+\\.(ts|tsx)$": [
       "ts-jest",
       {
-        tsconfig: "tsconfig.json",
-        isolatedModules: true
+        tsconfig: "tsconfig.json"
       }
     ]
   },
@@ -38,14 +37,14 @@ module.exports = {
     {
       ...commonConfig,
       displayName: 'unit',
-      testMatch: ['<rootDir>/tests/unit/**/*.test.js'],
+      testMatch: ['<rootDir>/tests/unit/**/*.test.{js,ts}'],
       setupFilesAfterEnv: ['jest-extended/all'], // Only include what's needed for unit tests
     },
     // Integration Test Project Configuration
     {
       ...commonConfig,
       displayName: 'integration',
-      testMatch: ['<rootDir>/tests/integration/**/*.test.js'],
+      testMatch: ['<rootDir>/tests/integration/**/*.test.{js,ts}'],
       setupFilesAfterEnv: ['<rootDir>/tests/setup/testSetup.js', 'jest-extended/all'], // Include the database setup
       maxWorkers: 1,
     },

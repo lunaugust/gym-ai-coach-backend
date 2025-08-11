@@ -1,4 +1,4 @@
-const { api } = require('../helpers/apiHelpers');
+import { api } from '../helpers/apiHelpers';
 
 describe('Integration: Users - Measurements', () => {
   const register = async () => {
@@ -26,5 +26,3 @@ describe('Integration: Users - Measurements', () => {
     expect(res.body.data.measurements).toBeArray();
   });
 });
-
-

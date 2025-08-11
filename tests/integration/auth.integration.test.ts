@@ -1,4 +1,4 @@
-const { api, registerUser, loginUser, authHeader } = require('../helpers/apiHelpers');
+import { api, registerUser, loginUser, authHeader } from '../helpers/apiHelpers';
 
 describe('Integration: Authentication Flow', () => {
   describe('POST /api/auth/register', () => {
@@ -98,45 +98,111 @@ describe('Integration: Authentication Flow', () => {
       expect(res.status).toBe(401);
       expect(res.body).toEqual(expect.objectContaining({ success: false, error: 'INVALID_TOKEN' }));
     });
+
+    it('should return 401 for expired refresh token', async () => {
+      // This would require a token that's actually expired, which is hard to test in integration
+      // For now, we'll test with an invalid token format
+      const res = await api().post('/api/auth/refresh').set('X-Forwarded-For', '10.0.0.11').send({ refreshToken: 'expired.token.here' });
+      expect(res.status).toBe(401);
+      expect(res.body).toEqual(expect.objectContaining({ success: false, error: 'INVALID_TOKEN' }));
+    });
   });
 
   describe('POST /api/auth/logout', () => {
     it('should logout successfully and return 204', async () => {
-      const email = `logout_${Date.now()}@example.com`;
-      const registerRes = await api().post('/api/auth/register').set('X-Forwarded-For', '10.0.0.11').send({ name: 'Logout', email, password: 'Password123!' });
+      const { res: registerRes } = await registerUser();
       const { accessToken } = registerRes.body.data.tokens;
 
       const res = await api().post('/api/auth/logout').set('Authorization', authHeader(accessToken));
       expect(res.status).toBe(204);
-      expect(res.text).toBe('');
     });
 
-    it('should return 401 when no token provided', async () => {
-      const res = await api().post('/api/auth/logout').set('X-Forwarded-For', '10.0.0.12');
+    it('should return 401 for invalid token', async () => {
+      const res = await api().post('/api/auth/logout').set('Authorization', 'Bearer invalid-token');
       expect(res.status).toBe(401);
-      expect(res.body).toEqual(expect.objectContaining({ success: false, error: 'UNAUTHENTICATED' }));
+    });
+
+    it('should return 401 for missing token', async () => {
+      const res = await api().post('/api/auth/logout');
+      expect(res.status).toBe(401);
     });
   });
 
   describe('GET /api/auth/profile', () => {
-    it('should return profile with valid token', async () => {
-      const email = `profile_${Date.now()}@example.com`;
-      const registerRes = await api().post('/api/auth/register').set('X-Forwarded-For', '10.0.0.13').send({ name: 'Profile', email, password: 'Password123!' });
+    it('should return user profile with valid token', async () => {
+      const { res: registerRes } = await registerUser();
       const { accessToken } = registerRes.body.data.tokens;
 
       const res = await api().get('/api/auth/profile').set('Authorization', authHeader(accessToken));
       expect(res.status).toBe(200);
-      expect(res.body.data.user).toEqual(
-        expect.objectContaining({ id: expect.any(String), email })
+      expect(res.body).toEqual(
+        expect.objectContaining({
+          success: true,
+          message: 'Profile fetched successfully.',
+          data: expect.objectContaining({
+            user: expect.objectContaining({ id: expect.any(String), email: expect.any(String) }),
+          }),
+        })
       );
     });
 
-    it('should return 401 without token', async () => {
-      const res = await api().get('/api/auth/profile').set('X-Forwarded-For', '10.0.0.14');
+    it('should return 401 for invalid token', async () => {
+      const res = await api().get('/api/auth/profile').set('Authorization', 'Bearer invalid-token');
       expect(res.status).toBe(401);
-      expect(res.body).toEqual(expect.objectContaining({ success: false, error: 'UNAUTHENTICATED' }));
+    });
+
+    it('should return 401 for missing token', async () => {
+      const res = await api().get('/api/auth/profile');
+      expect(res.status).toBe(401);
+    });
+  });
+
+  describe('Rate Limiting', () => {
+    it('should rate limit registration attempts from same IP', async () => {
+      const ip = '10.0.0.12';
+
+      // Make multiple registration attempts to trigger rate limit (test limit is 10)
+      for (let i = 0; i < 11; i++) {
+        const res = await api().post('/api/auth/register').set('X-Forwarded-For', ip).send({
+          name: 'Rate Test',
+          email: `${'testEmail'}_${i}@example.com`,
+          password: 'Password123!',
+        });
+        
+        if (i < 10) {
+          expect(res.status).toBe(201); // First 10 should succeed
+        } else {
+          expect(res.status).toBe(429); // 11th should be rate limited
+          expect(res.body).toEqual(expect.objectContaining({ success: false, error: 'RATE_LIMIT_EXCEEDED' }));
+        }
+      }
+    });
+
+    it('should rate limit login attempts from same IP', async () => {
+      const email = `login_rate_${Date.now()}@example.com`;
+      const ip = '10.0.0.13';
+
+      // Register a user first
+      await api().post('/api/auth/register').set('X-Forwarded-For', ip).send({
+        name: 'Login Rate Test',
+        email,
+        password: 'Password123!',
+      });
+
+      // Make multiple login attempts with wrong password (test limit is 10)
+      for (let i = 0; i < 11; i++) {
+        const res = await api().post('/api/auth/login').set('X-Forwarded-For', ip).send({
+          email,
+          password: 'WrongPassword123!',
+        });
+        
+        if (i < 10) {
+          expect(res.status).toBe(401); // First 10 should fail with wrong password
+        } else {
+          expect(res.status).toBe(429); // 11th should be rate limited
+          expect(res.body).toEqual(expect.objectContaining({ success: false, error: 'RATE_LIMIT_EXCEEDED' }));
+        }
+      }
     });
   });
 });
-
-

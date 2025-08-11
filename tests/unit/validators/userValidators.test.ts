@@ -1,4 +1,4 @@
-const { userProfileUpdateSchema, preferencesSchema, measurementCreateSchema } = require('../../../src/validators/userValidators');
+import { userProfileUpdateSchema, preferencesSchema, measurementCreateSchema } from '../../../src/validators/userValidators';
 
 describe('validators/userValidators', () => {
   describe('userProfileUpdateSchema', () => {
@@ -35,5 +35,3 @@ describe('validators/userValidators', () => {
     });
   });
 });
-
-

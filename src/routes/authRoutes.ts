@@ -9,33 +9,37 @@ const router = express.Router();
 
 const isTestEnv = process.env.NODE_ENV === "test";
 const noop = (_req: any, _res: any, next: any) => next();
-const registerLimiter = isTestEnv
-  ? (noop as any)
-  : rateLimit({
-      windowMs: 60 * 1000,
-      max: 3,
-      message: {
-        success: false,
-        message: "Too many registration attempts from this IP, please try again after a minute.",
-        error: "RATE_LIMIT_EXCEEDED",
-      },
-      standardHeaders: true,
-      legacyHeaders: false,
-    });
 
-const loginLimiter = isTestEnv
-  ? (noop as any)
-  : rateLimit({
-      windowMs: 60 * 1000,
-      max: 5,
-      message: {
-        success: false,
-        message: "Too many login attempts from this IP, please try again after a minute.",
-        error: "RATE_LIMIT_EXCEEDED",
-      },
-      standardHeaders: true,
-      legacyHeaders: false,
-    });
+// Rate limiting configuration - higher limits for test environment
+const registerLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: isTestEnv ? 10 : 3, // Higher limit for tests
+  message: {
+    success: false,
+    message: "Too many registration attempts from this IP, please try again after a minute.",
+    error: "RATE_LIMIT_EXCEEDED",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: {
+    trustProxy: false,
+  },
+});
+
+const loginLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: isTestEnv ? 10 : 5, // Higher limit for tests
+  message: {
+    success: false,
+    message: "Too many login attempts from this IP, please try again after a minute.",
+    error: "RATE_LIMIT_EXCEEDED",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: {
+    trustProxy: false,
+  },
+});
 
 router.post("/register", registerLimiter as any, validate(registerSchema), authController.register);
 router.post("/login", loginLimiter as any, validate(loginSchema), authController.login);

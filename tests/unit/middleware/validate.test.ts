@@ -1,13 +1,13 @@
-const ApiError = require('../../../src/utils/ApiError');
-
-// Mock the validate middleware
-const validate = require('../../../src/middleware/validate');
+import type { Request, Response, NextFunction } from 'express';
+import type { Schema } from 'joi';
+import ApiError from '../../../src/utils/ApiError';
+import validate from '../../../src/middleware/validate';
 
 describe('validate middleware', () => {
-  let mockReq;
-  let mockRes;
-  let mockNext;
-  let mockSchema;
+  let mockReq: Partial<Request>;
+  let mockRes: Partial<Response>;
+  let mockNext: jest.MockedFunction<NextFunction>;
+  let mockSchema: jest.Mocked<Schema>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -28,7 +28,7 @@ describe('validate middleware', () => {
     // Mock Joi schema
     mockSchema = {
       validate: jest.fn(),
-    };
+    } as any;
   });
 
   describe('validate middleware function', () => {
@@ -37,7 +37,7 @@ describe('validate middleware', () => {
       mockSchema.validate.mockReturnValue({ error: undefined, value: validatedData });
       mockReq.body = { name: 'John Doe', age: 30 };
 
-      validate(mockSchema)(mockReq, mockRes, mockNext);
+      validate(mockSchema)(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockSchema.validate).toHaveBeenCalledWith(mockReq.body, {
         abortEarly: false,
@@ -48,7 +48,7 @@ describe('validate middleware', () => {
     });
 
     it('should call next() with ApiError when validation fails', () => {
-      const validationError = new Error('Validation failed');
+      const validationError = new Error('Validation failed') as any;
       validationError.details = [{ message: 'Name is required' }];
       mockSchema.validate.mockReturnValue({ 
         error: validationError, 
@@ -56,7 +56,7 @@ describe('validate middleware', () => {
       });
       mockReq.body = { age: 30 }; // Missing name
 
-      validate(mockSchema)(mockReq, mockRes, mockNext);
+      validate(mockSchema)(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockSchema.validate).toHaveBeenCalledWith(mockReq.body, {
         abortEarly: false,
@@ -71,7 +71,7 @@ describe('validate middleware', () => {
     });
 
     it('should handle validation with custom error messages', () => {
-      const validationError = new Error('Validation failed');
+      const validationError = new Error('Validation failed') as any;
       validationError.details = [{ message: 'Invalid email format' }];
       mockSchema.validate.mockReturnValue({ 
         error: validationError, 
@@ -79,7 +79,7 @@ describe('validate middleware', () => {
       });
       mockReq.body = { email: 'invalid-email' };
 
-      validate(mockSchema)(mockReq, mockRes, mockNext);
+      validate(mockSchema)(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -90,7 +90,7 @@ describe('validate middleware', () => {
     });
 
     it('should handle multiple validation errors', () => {
-      const validationError = new Error('Validation failed');
+      const validationError = new Error('Validation failed') as any;
       validationError.details = [
         { message: 'Name is required' },
         { message: 'Age must be a number' }
@@ -101,7 +101,7 @@ describe('validate middleware', () => {
       });
       mockReq.body = { age: 'not-a-number' };
 
-      validate(mockSchema)(mockReq, mockRes, mockNext);
+      validate(mockSchema)(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -116,7 +116,7 @@ describe('validate middleware', () => {
       mockSchema.validate.mockReturnValue({ error: undefined, value: validatedData });
       mockReq.body = {};
 
-      validate(mockSchema)(mockReq, mockRes, mockNext);
+      validate(mockSchema)(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockSchema.validate).toHaveBeenCalledWith({}, {
         abortEarly: false,
@@ -131,7 +131,7 @@ describe('validate middleware', () => {
       mockSchema.validate.mockReturnValue({ error: undefined, value: validatedData });
       mockReq.body = null;
 
-      validate(mockSchema)(mockReq, mockRes, mockNext);
+      validate(mockSchema)(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockSchema.validate).toHaveBeenCalledWith(null, {
         abortEarly: false,
@@ -146,7 +146,7 @@ describe('validate middleware', () => {
       mockSchema.validate.mockReturnValue({ error: undefined, value: validatedData });
       mockReq.body = undefined;
 
-      validate(mockSchema)(mockReq, mockRes, mockNext);
+      validate(mockSchema)(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockSchema.validate).toHaveBeenCalledWith(undefined, {
         abortEarly: false,
@@ -161,7 +161,7 @@ describe('validate middleware', () => {
       mockSchema.validate.mockReturnValue({ error: undefined, value: validatedData });
       mockReq.body = { name: 'John Doe', unknownField: 'value' };
 
-      validate(mockSchema)(mockReq, mockRes, mockNext);
+      validate(mockSchema)(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockSchema.validate).toHaveBeenCalledWith({ name: 'John Doe', unknownField: 'value' }, {
         abortEarly: false,

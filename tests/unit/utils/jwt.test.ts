@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
-const { generateTokens,  generateAccessToken, generateRefreshToken } = require('../../../src/utils/jwt');
-const { createMinimalUserData } = require('../../factories/userFactory');
+import jwt from 'jsonwebtoken';
+import { generateTokens, generateAccessToken, generateRefreshToken } from '../../../src/utils/jwt';
+import { createMinimalUserData } from '../../factories/userFactory';
 
 // Mock environment variables for JWT
 const JWT_SECRET = 'test-secret-for-jwt-util';
@@ -9,7 +9,7 @@ const JWT_ACCESS_EXPIRATION = '10m';
 const JWT_REFRESH_EXPIRATION = '7d';
 
 describe('Unit Tests: JWT Utility', () => {
-  let originalEnv;
+  let originalEnv: NodeJS.ProcessEnv;
 
   beforeAll(() => {
     // Store original environment variables and set mocks
@@ -35,14 +35,14 @@ describe('Unit Tests: JWT Utility', () => {
       expect(refreshToken).toBeString();
 
       // Verify Access Token payload and signature
-      const decodedAccessToken = jwt.verify(accessToken, JWT_SECRET);
+      const decodedAccessToken = jwt.verify(accessToken, JWT_SECRET) as any;
       expect(decodedAccessToken.userId).toBe(user.id);
       expect(decodedAccessToken.email).toBe(user.email);
       expect(decodedAccessToken.name).toBe(user.name);
       expect(decodedAccessToken.exp).toBeDefined();
 
       // Verify Refresh Token payload and signature
-      const decodedRefreshToken = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+      const decodedRefreshToken = jwt.verify(refreshToken, JWT_REFRESH_SECRET) as any;
       expect(decodedRefreshToken.userId).toBe(user.id);
       expect(decodedRefreshToken.email).toBeUndefined(); // Refresh token should have a minimal payload
       expect(decodedRefreshToken.exp).toBeDefined();
@@ -54,7 +54,7 @@ describe('Unit Tests: JWT Utility', () => {
       const payload = { userId: 'abc', email: 'test@example.com', name: 'Test User' };
       const token = generateAccessToken(payload);
       expect(token).toBeString();
-      const decoded = jwt.verify(token, JWT_SECRET);
+      const decoded = jwt.verify(token, JWT_SECRET) as any;
       expect(decoded.userId).toBe(payload.userId);
       expect(decoded.email).toBe(payload.email);
       expect(decoded.name).toBe(payload.name);
@@ -67,7 +67,7 @@ describe('Unit Tests: JWT Utility', () => {
       const payload = { userId: 'xyz' };
       const token = generateRefreshToken(payload);
       expect(token).toBeString();
-      const decoded = jwt.verify(token, JWT_REFRESH_SECRET);
+      const decoded = jwt.verify(token, JWT_REFRESH_SECRET) as any;
       expect(decoded.userId).toBe(payload.userId);
       expect(decoded.exp).toBeDefined();
       expect(decoded.email).toBeUndefined();

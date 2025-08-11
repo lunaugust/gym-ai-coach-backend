@@ -1,4 +1,4 @@
-const { api } = require('../helpers/apiHelpers');
+import { api } from '../helpers/apiHelpers';
 
 describe('Integration: Security', () => {
   it('should include security headers from helmet', async () => {
@@ -21,5 +21,3 @@ describe('Integration: Security', () => {
     );
   });
 });
-
-

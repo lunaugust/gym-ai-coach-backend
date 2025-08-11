@@ -1,4 +1,4 @@
-const { api } = require('../helpers/apiHelpers');
+import { api } from '../helpers/apiHelpers';
 
 describe('Integration: Users - Preferences', () => {
   const register = async () => {
@@ -15,5 +15,3 @@ describe('Integration: Users - Preferences', () => {
     expect(res.body.data.preferences).toEqual(expect.objectContaining(payload));
   });
 });
-
-

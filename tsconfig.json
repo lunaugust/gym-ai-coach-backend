@@ -10,6 +10,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "moduleResolution": "node",
+    "isolatedModules": true,
     "types": ["node", "jest"],
     "typeRoots": [
       "./src/types",

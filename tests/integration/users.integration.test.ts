@@ -1,6 +1,6 @@
-const path = require('path');
-const fs = require('fs');
-const { api } = require('../helpers/apiHelpers');
+import path from 'path';
+import fs from 'fs';
+import { api } from '../helpers/apiHelpers';
 
 describe('Integration: Users - Profile & Avatar', () => {
   const register = async () => {
@@ -43,5 +43,3 @@ describe('Integration: Users - Profile & Avatar', () => {
     expect(res.body.data.avatar).toMatch(/^\/uploads\/avatars\/.+\.webp$/);
   });
 });
-
-
